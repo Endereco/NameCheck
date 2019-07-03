@@ -1,0 +1,22 @@
+{
+  "name": "@endereco/namecheck",
+  "version": "1.0.0",
+  "description": "",
+  "main": "NameCheck.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Endereco/NameCheck.git"
+  },
+  "keywords": [
+    "endereco"
+  ],
+  "author": "ilja_weber <ilja@endereco.de>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Endereco/NameCheck/issues"
+  },
+  "homepage": "https://github.com/Endereco/NameCheck#readme"
+}
