@@ -32,6 +32,7 @@ function NameCheck(config) {
     };
     this.defaultConfig = {
         'useWatcher': true,
+        'referer': 'not_set',
         'tid': 'not_set'
     };
     this.fieldsAreSet = false;
@@ -53,11 +54,6 @@ function NameCheck(config) {
             this.inputElement.setAttribute('autocomplete', 'autocomplete_' + Math.random().toString(36).substring(2) + Date.now());
         } else {
             this.inputElement.setAttribute('autocomplete', 'off' );
-        }
-
-        // Generate TID if accounting service is set.
-        if (window.accounting && ('not_set' === $self.config.tid)) {
-            $self.config.tid = window.accounting.generateTID();
         }
 
         $self.inputElement.addEventListener('change', function() {
@@ -83,12 +79,32 @@ function NameCheck(config) {
             $this.value = newName;
             $self.checkSalutation().then( function($data) {
                 $self.resetStatus($data);
+
+                if ($data.cmd && $data.cmd.use_tid) {
+                    $self.config.tid = $data.cmd.use_tid;
+
+                    if ($self.config.serviceGroup && 0 < $self.config.serviceGroup.length) {
+                        $self.config.serviceGroup.forEach( function(serviceObject) {
+                            serviceObject.updateConfig({'tid': $data.cmd.use_tid});
+                        })
+                    }
+                }
             });
         });
 
         $self.salutationElement.addEventListener('change', function() {
             $self.checkSalutation().then( function($data) {
                 $self.resetStatus($data);
+
+                if ($data.cmd && $data.cmd.use_tid) {
+                    $self.config.tid = $data.cmd.use_tid;
+
+                    if ($self.config.serviceGroup && 0 < $self.config.serviceGroup.length) {
+                        $self.config.serviceGroup.forEach( function(serviceObject) {
+                            serviceObject.updateConfig({'tid': $data.cmd.use_tid});
+                        })
+                    }
+                }
             });
         });
 
@@ -157,12 +173,20 @@ function NameCheck(config) {
                 }
             }
 
+            /**
+             * Backward compatibility for referer
+             * If not set, it will use the browser url.
+             */
+            if ('not_set' === $self.config.referer) {
+                $self.config.referer = window.location.href;
+            }
+
             $self.requestBody.params.name = $self.inputElement.value;
             $self.connector.open('POST', $self.config.endpoint, true);
             $self.connector.setRequestHeader("Content-type", "application/json");
             $self.connector.setRequestHeader("X-Auth-Key", $self.config.apiKey);
             $self.connector.setRequestHeader("X-Transaction-Id", $self.config.tid);
-            $self.connector.setRequestHeader("X-Transaction-Referer", window.location.href);
+            $self.connector.setRequestHeader("X-Transaction-Referer", $self.config.referer);
 
             $self.connector.send(JSON.stringify($self.requestBody));
         });
